@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block head %}
+<script src="{% static 'teleprompter.js' %}" defer></script>
+<script src="{% static 'record.js' %}" defer></script>
+{% endblock %}
+{% block content %}
+<h1>Recording queue</h1>
+{% if campaign.status == 'archived' %}
+<p>Unarchive this campaign in Settings to record.</p>
+{% elif recipient %}
+<div id="recorder" data-upload="{% url 'upload' recipient.pk %}" data-limit="{{ max_seconds }}" data-script-url="{% url 'save_script' campaign.pk %}">
+  <section class="card recipient-summary">
+    <div><p class="eyebrow">Recipient {{ position }} of {{ total }}</p><h2>{{ recipient }}</h2></div>
+    <div><strong>Program</strong><p>{{ recipient.program|default:'Not provided' }}</p></div>
+    <div><strong>Notes</strong><p>{{ recipient.notes|default:'No notes'|linebreaksbr }}</p></div>
+    {% if recipient.video.status == 'ready' %}<p>A video is already saved. Saving replaces it. <a href="{{ recipient.public_url }}" target="_blank" rel="noreferrer">View saved video</a></p>{% endif %}
+  </section>
+  <div class="record-layout">
+    <section class="card script-panel" aria-labelledby="script-heading">
+      <h2 id="script-heading">Recording script</h2>
+      {% if can_manage %}<details id="script-editor" {% if not campaign.script_text %}open{% endif %}>
+        <summary>Edit campaign script</summary>
+        <label for="script-file">Load a text file (optional)</label><input id="script-file" type="file" accept=".txt,text/plain">
+        <label for="script-text">Script text</label>
+        <textarea id="script-text" maxlength="20000" rows="5" placeholder="Type or paste what you want to say…">{{ campaign.script_text }}</textarea>
+        <p class="script-help">Shared across this campaign’s recording queue. Only staff can see the script.</p>
+        <button id="save-script" type="button" class="secondary">Save script</button>
+      </details>{% else %}<textarea id="script-text" hidden readonly>{{ campaign.script_text }}</textarea><button id="save-script" type="button" hidden>Save script</button>{% endif %}
+      <p id="script-save-status" class="script-help" role="status">{% if campaign.script_text %}Script saved{% else %}Enter a script to begin{% endif %}</p>
+      <div class="script-settings">
+        <label for="script-speed">Scroll speed <output id="script-speed-value" for="script-speed">30 px/s</output><input id="script-speed" type="range" min="5" max="100" value="30" step="5"></label>
+        <label for="script-size">Text size <output id="script-size-value" for="script-size">28 px</output><input id="script-size" type="range" min="18" max="56" value="28" step="2"></label>
+      </div>
+      <label class="checkbox-label"><input id="script-auto" type="checkbox" checked> Start scrolling when recording starts</label>
+      <div id="script-display" class="script-display" tabindex="0" role="region" aria-label="Scrolling recording script"><div id="script-content"></div></div>
+      <div class="actions script-actions"><button id="script-toggle" type="button" disabled>Start scrolling</button><button id="script-reset" type="button" class="secondary">Back to top</button></div>
+      <p id="script-scroll-status" class="script-help" role="status">Ready</p>
+    </section>
+    <section class="card camera-panel">
+      <video id="preview" autoplay muted playsinline aria-label="Camera preview"></video>
+      <p id="record-status" role="status" aria-live="polite">Enable your camera and microphone to begin. Maximum {{ max_seconds }} seconds.</p>
+      <div class="device-grid"><label>Camera<select id="camera"></select></label><label>Microphone<select id="microphone"></select></label></div>
+      <p><output id="timer">00:00</output></p>
+      <div class="actions"><button id="enable" type="button">Enable camera & microphone</button><button id="start" type="button" disabled>Start recording</button><button id="stop" type="button" hidden>Stop recording</button><button id="redo" type="button" hidden>Re-record</button><button id="save" type="button" hidden>Save & Next</button></div>
+      {% csrf_token %}
+    </section>
+  </div>
+  <nav class="actions" aria-label="Recording queue">{% if previous %}<a href="?recipient={{ previous.pk }}">Previous</a>{% endif %}{% if following %}<a href="?recipient={{ following.pk }}">Skip →</a>{% endif %}{% if unrecorded %}<a href="?recipient={{ unrecorded.pk }}">Next unrecorded</a>{% endif %}{% if can_manage %}<a href="{% url 'campaign' campaign.pk %}">Back to overview</a>{% else %}<a href="{% url 'dashboard' %}">Back to my recordings</a>{% endif %}</nav>
+</div>
+{% else %}<section class="card"><p>Import recipients to start recording.</p><a href="{% url 'import' campaign.pk %}">Import CSV</a></section>{% endif %}
+{% endblock %}

@@ -1,0 +1,1 @@
+{% extends 'base.html' %}{% block content %}<section class="card narrow"><h1>{{ title }}</h1><p>{{ detail }}</p><form method="post">{% csrf_token %}<button class="danger-button">Permanently delete</button><a href="/">Cancel</a></form></section>{% endblock %}

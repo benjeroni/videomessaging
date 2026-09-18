@@ -1,0 +1,11 @@
+external_id,first_name,last_name,email,phone,program,notes
+TEST001,Jane,Smith,jane@example.invalid,,Practical Nursing,January intake
+TEST002,Alex,Lee,alex@example.invalid,,Practical Nursing,
+TEST003,Sam,Patel,sam@example.invalid,,Practical Nursing,
+TEST004,Jordan,Chen,jordan@example.invalid,,Practical Nursing,
+TEST005,Taylor,Brown,taylor@example.invalid,,Practical Nursing,
+TEST006,Morgan,Wilson,morgan@example.invalid,,Practical Nursing,
+TEST007,Casey,Martin,casey@example.invalid,,Practical Nursing,
+TEST008,Riley,Garcia,riley@example.invalid,,Practical Nursing,
+TEST009,Jamie,Clark,jamie@example.invalid,,Practical Nursing,
+TEST010,Avery,Thomas,avery@example.invalid,,Practical Nursing,

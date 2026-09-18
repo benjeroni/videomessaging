@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="heading"><h1>Recipients</h1><a class="button" href="{% url 'import' campaign.pk %}">Import CSV</a></div>
+<form class="actions" method="get"><label for="q">Search recipients</label><input id="q" name="q" value="{{ query }}" placeholder="Name, program, email or external ID"><button>Search</button></form>
+<form method="post" action="{% url 'assign_recipients' campaign.pk %}">
+{% csrf_token %}
+<section class="card assignment-controls"><h2>Assign recording work</h2><p>Select recipients below, then choose their recorder. Reassigning a contact removes it from the previous recorder’s queue.</p>
+<label for="assigned-to">Assigned recorder</label><select id="assigned-to" name="assigned_to"><option value="">Unassigned</option>{% for recorder in recorders %}<option value="{{ recorder.pk }}">{{ recorder.get_full_name|default:recorder.username }} ({{ recorder.username }})</option>{% endfor %}</select><button type="submit">Apply assignment</button>
+{% if not recorders %}<p>No active recorders yet. An admin can create accounts with the Recorder role in Admin → Users.</p>{% endif %}</section>
+<div class="table-wrap"><table><thead><tr><th><input id="select-all-recipients" type="checkbox" aria-label="Select all displayed recipients"></th><th>Recipient</th><th>Program</th><th>Assigned to</th><th>Video</th><th>Viewed</th><th>CTA</th><th>Actions</th></tr></thead><tbody>
+{% for row in rows %}{% with r=row.recipient %}<tr><td><input type="checkbox" name="recipients" value="{{ r.pk }}" aria-label="Select {{ r }}"></td><td>{{ r }}</td><td>{{ r.program|default:'—' }}</td><td>{{ r.assigned_to.username|default:'Unassigned' }}</td><td>{% if r.video.status == 'ready' %}Recorded{% else %}{{ r.video.get_status_display|default:'Missing' }}{% endif %}</td><td>{{ row.viewed|yesno:'Yes,—' }}</td><td>{{ row.cta|yesno:'Yes,—' }}</td><td class="row-actions"><a href="{% url 'record' campaign.pk %}?recipient={{ r.pk }}">Record</a><a href="{% url 'recipient_edit' r.pk %}">Edit</a><a href="{{ r.public_url }}" target="_blank" rel="noreferrer">Open</a><button type="button" class="subtle" data-copy="{{ r.public_url }}">Copy URL</button><a class="danger" href="{% url 'recipient_delete' r.pk %}">Delete</a></td></tr>{% endwith %}
+{% empty %}<tr><td colspan="8">No recipients found. Import a CSV to get started.</td></tr>{% endfor %}
+</tbody></table></div></form>
+{% endblock %}

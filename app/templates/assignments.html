@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+<p class="eyebrow">Your workspace</p><h1>My recordings</h1>
+<p>Record a personal video for each recipient assigned to you. Your coordinator provides the campaign script.</p>
+<div class="table-wrap"><table><thead><tr><th>Recipient</th><th>Campaign</th><th>Program</th><th>Video</th><th>Action</th></tr></thead><tbody>
+{% for recipient in assignments %}<tr><td>{{ recipient }}</td><td>{{ recipient.campaign.name }}</td><td>{{ recipient.program|default:'—' }}</td><td>{% if recipient.video.status == 'ready' %}Recorded{% else %}{{ recipient.video.get_status_display|default:'Missing' }}{% endif %}</td><td><a href="{% url 'record' recipient.campaign_id %}?recipient={{ recipient.pk }}">{% if recipient.video.status == 'ready' %}Re-record{% else %}Record{% endif %}</a></td></tr>
+{% empty %}<tr><td colspan="5">No recipients are currently assigned to you. Ask your coordinator to assign contacts.</td></tr>{% endfor %}
+</tbody></table></div>
+{% endblock %}

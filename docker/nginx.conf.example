@@ -1,0 +1,14 @@
+# Place inside an existing HTTPS server block. TLS certificates are managed
+# by your reverse proxy. Do not log token-bearing request URLs or client IPs.
+access_log off;
+error_log /dev/null crit;
+client_max_body_size 160m;
+location / {
+    proxy_pass http://127.0.0.1:8000;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_read_timeout 360s;
+    proxy_send_timeout 360s;
+    proxy_request_buffering off;
+}
+# Never expose VIDEO_STORAGE_PATH through an alias or static directory.
